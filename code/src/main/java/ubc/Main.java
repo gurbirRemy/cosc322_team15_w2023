@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -49,7 +51,7 @@ public class Main extends GamePlayer {
 		//player = new HumanPlayer();
 		
 		//Create Bot
-		player = new Main(args[0], args[1]);
+	player = new Main(args[0], args[1]);
 		createBoard();
 
 		if (player.getGameGUI() == null) {
@@ -59,7 +61,7 @@ public class Main extends GamePlayer {
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				public void run() {
 			 player.Go();
-
+			 
 				}
 				
 		
@@ -151,16 +153,18 @@ public class Main extends GamePlayer {
 				updateBoard(c, n, a);
 				ActionValidator validator = new ActionValidator(board);
 				System.out.println(validator.isValidMove(c, n, a)); 
+				makeRandomMove(1);
 			 }
 			 else {
 				 System.out.println("Move by " + playerwhite + " : " + Move); 
 				updateBoard(c, n, a);
 				ActionValidator validator = new ActionValidator(board);
 				System.out.println(validator.isValidMove(c, n, a)); 
+				makeRandomMove(2);
 			 }
-		
 			 
-			 Move();
+			 
+			 
 		 }
 		return true;
 	}
@@ -267,7 +271,7 @@ public class Main extends GamePlayer {
 		}
 		else {
 			System.out.println("Invalid Move!");
-			System.exit(0);
+			//System.exit(0);
 		}
 		//check move legality() param -> board, curr, next, arrow
 		//if legal
@@ -287,7 +291,52 @@ public class Main extends GamePlayer {
 		
 	}
 	
-    private void makeRandomMove() {
+    private void makeRandomMove(int c) {
+    	//current positions
+    	List<ArrayList<Integer>> whitecurrentpositions = board.entrySet().stream()
+    			.filter(entry -> entry.getValue() == 1)
+    			.map(entry -> entry.getKey())
+    			.collect(Collectors.toList());
+    	//System.out.println(whitecurrentpositions);
+    	
+    	List<ArrayList<Integer>> blackcurrentpositions = board.entrySet().stream()
+    			.filter(entry -> entry.getValue() == 2)
+    			.map(entry -> entry.getKey())
+    			.collect(Collectors.toList());
+    	//System.out.println(blackcurrentpositions);
+    	
+    	//available squares
+    	List<ArrayList<Integer>> emptysquares = board.entrySet().stream()
+    			.filter(entry -> entry.getValue() == 0)
+    			.map(entry -> entry.getKey())
+    			.collect(Collectors.toList());
+    	Random rand = new Random();
+    	ArrayList<Integer> c2 = new ArrayList<Integer>();
+    	if (c == 1) {
+    	c2 = whitecurrentpositions.get(rand.nextInt(4));}
+    	else if (c == 2) {
+    	c2 = blackcurrentpositions.get(rand.nextInt(4));}
+    	ArrayList<Integer> n2 = new ArrayList<Integer>(); 
+    	n2 = emptysquares.get(rand.nextInt(emptysquares.size()));
+    	ArrayList<Integer> a2 = new ArrayList<Integer>(); 
+    	a2 = emptysquares.get(rand.nextInt(emptysquares.size()));
+    	
+    	Action move = new Action(c2.get(0), c2.get(1), n2.get(0), n2.get(1), a2.get(0), a2.get(1));
+    	System.out.println("Move by " + getGameClient().getUserName() + " : " + move.toString());
+		getGameClient().sendMoveMessage(move.makeMap());
+		getGameGUI().updateGameState(move.makeMap());
+		
+		ArrayList<Integer> c3 = new ArrayList<Integer>();
+		 c3.add(c2.get(1));//y
+		 c3.add(c2.get(0));//x
+		 ArrayList<Integer> n3 = new ArrayList<Integer>();
+		 n3.add(n2.get(1));
+		 n3.add(n2.get(0));
+		 ArrayList<Integer> a3 = new ArrayList<Integer>();
+		 a3.add(a2.get(1));
+		 a3.add(a2.get(0));
+		 
+		 updateBoard(c3, n3, a3);
     	  //ArrayList<Action> actions = ActionGenerator.generateActions(state, color);
       //  Action selectedAction = actions.get((int) (Math.random() * actions.size()));
       //  state = new State(state, selectedAction);
