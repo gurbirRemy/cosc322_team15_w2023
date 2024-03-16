@@ -55,6 +55,10 @@ public class ActionValidator {
         	System.out.println(6);
             return false;
         }
+        
+        if (!isarrowPathClear(queenNext, arrow)) {
+            return false;
+        }
 
         return true;
     }
@@ -110,6 +114,7 @@ public class ActionValidator {
             x += deltaX;
             y += deltaY;
         }
+      
         return true;
     }
 
@@ -124,6 +129,27 @@ public class ActionValidator {
         }
         return deltaX == 0 || deltaY == 0 || deltaX == deltaY;
     }
+    
+    
+    private boolean isarrowPathClear(ArrayList<Integer> newpos, ArrayList<Integer> sa) {
+    	// sa is shoot arrow
+        // check direction of the movement
+        int deltaX = Integer.compare(sa.get(0), newpos.get(0));
+        int deltaY = Integer.compare(sa.get(1), newpos.get(1));
+        // next box to move
+        int x = newpos.get(0) + deltaX;
+        int y = newpos.get(1) + deltaY;
+        // discontinue while loop when x,y = queenNext
+        while (!((deltaX != 0 && x == sa.get(0)) || (deltaY != 0 && y == sa.get(1)))) {
+            if (board.get(new ArrayList<>(Arrays.asList(x, y))) != 0) {
+                return false;
+            }
+            x += deltaX;
+            y += deltaY;
+        }
+        return true;
+    }
+
 
     // test case
 //    public static void main(String[] args) {
