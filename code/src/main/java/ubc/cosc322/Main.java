@@ -352,7 +352,7 @@ public class Main extends GamePlayer {
 			gameState = ((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
 			boardState = gameState;
 			// testing board 
-			System.out.println("test1");
+			System.out.println("Initial board");
 			printBoard(board);
 			gamegui.setGameState(gameState);
 
@@ -383,36 +383,81 @@ public class Main extends GamePlayer {
 			ArrayList<Integer> NextPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_NEXT);
 			ArrayList<Integer> ArrowPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
 
-			ArrayList<Integer> c = new ArrayList<Integer>();
-			c.addAll(currentPos);
-			ArrayList<Integer> n = new ArrayList<Integer>();
-			n.addAll(NextPos);
-			ArrayList<Integer> a = new ArrayList<Integer>();
-			a.addAll(ArrowPos);
+//			ArrayList<Integer> c = new ArrayList<Integer>();
+//			c.addAll(currentPos);
+//			ArrayList<Integer> n = new ArrayList<Integer>();
+//			n.addAll(NextPos);
+//			ArrayList<Integer> a = new ArrayList<Integer>();
+//			a.addAll(ArrowPos);
 
+//
 			String Move = (xaxis[currentPos.get(1)] + (currentPos.get(0)) + "->" + xaxis[NextPos.get(1)]
 					+ (NextPos.get(0)) + "(Arrow: " + xaxis[ArrowPos.get(1)] + (ArrowPos.get(0)) + ")");
+		
+//			ArrayList<Integer> c = new ArrayList<>();
+//			c.add(currentPos.get(1)); // Add y-coordinate first
+//			c.add(currentPos.get(0)); // Add x-coordinate second
+//
+//			ArrayList<Integer> n = new ArrayList<>();
+//			n.add(NextPos.get(1)); // Add y-coordinate first
+//			n.add(NextPos.get(0)); // Add x-coordinate second
+//
+//			ArrayList<Integer> a = new ArrayList<>();
+//			a.add(ArrowPos.get(1)); // Add y-coordinate first
+//			a.add(ArrowPos.get(0)); // Add x-coordinate second
+
 			if (playercolor.equals("white")) {
 				System.out.println("Move by " + playerblack + " : " + Move);
 				//updateBoard(c, n, a); // first we are updating only then passing ?
 				// testing baord
-				System.out.println("test2_white");
-				printBoard(board);
-				ActionValidator validator = new ActionValidator(board);
-				System.out.println(validator.isValidMove(c, n, a));
-				updateBoard(c, n, a);
-				makeRandomMove(1);
-			} else {
-				System.out.println("Move by " + playerwhite + " : " + Move);
+				ArrayList<Integer> c = new ArrayList<Integer>();
+				c.addAll(currentPos);
+				ArrayList<Integer> n = new ArrayList<Integer>();
+				n.addAll(NextPos);
+				ArrayList<Integer> a = new ArrayList<Integer>();
+				a.addAll(ArrowPos);
+				System.out.println("update board");
+			//	updateBoard(c, n, a); 
 				
-				System.out.println("test2_black");
-				printBoard(board);
+				//printBoard(board);
+				System.out.println("c" + c + "n " + n + "a" + a);
 				ActionValidator validator = new ActionValidator(board);
 				if(validator.isValidMove(c, n, a))
 				 System.out.println("Correct move");
-				else 
+				else { 
 					System.out.println("Wrong move");
-				updateBoard(c, n, a);
+					System.out.print("Player White Wins the game! Congratulations");
+					//System.exit(0);
+				}
+				
+				
+				makeRandomMove(1);
+			} else {
+				System.out.println("Move by " + playerwhite + " : " + Move);
+				ArrayList<Integer> c = new ArrayList<Integer>();
+				c.addAll(currentPos);
+				ArrayList<Integer> n = new ArrayList<Integer>();
+				n.addAll(NextPos);
+				ArrayList<Integer> a = new ArrayList<Integer>();
+				a.addAll(ArrowPos);
+				System.out.println("check player white move");
+			//	printBoard(board);
+				
+				System.out.println("c" + c + "n " + n + "a" + a);
+				
+				ActionValidator validator = new ActionValidator(board);
+				if(validator.isValidMove(c, n, a))
+				 System.out.println("Correct move");
+				else {
+					System.out.println("Wrong move");
+					//other player wins 
+					System.out.print("Player White Wins the game! Congratulations");
+					//System.exit(0);
+				}
+				
+				
+				
+			
 				makeRandomMove(2);
 			}
 
@@ -682,27 +727,37 @@ public class Main extends GamePlayer {
 		return possibleMoves;
 	}
 	
-	private static void printBoard(HashMap<ArrayList<Integer>, Integer> board) {
-	    int[][] matrix = new int[10][10];
-	    // Fill the matrix with values from the board
-	    for (Map.Entry<ArrayList<Integer>, Integer> entry : board.entrySet()) {
-	        ArrayList<Integer> position = entry.getKey();
-	        int value = entry.getValue();
-	        int x = position.get(0) - 1; // Adjust for zero-based indexing
-	        int y = position.get(1) - 1; // Adjust for zero-based indexing
-	        matrix[y][x] = value;
-	    }
-
-	    // Print the matrix
-	    for (int i = 0; i < 10; i++) {
-	        for (int j = 0; j < 10; j++) {
-	            System.out.print(matrix[i][j] + " ");
-	            // Print coordinates (x, y)
-	            System.out.print("(" + (i + 1) + "," + (j + 1) + "): ");
+//	private static void printBoard(HashMap<ArrayList<Integer>, Integer> board) {
+//	    int[][] matrix = new int[10][10];
+//	    // Fill the matrix with values from the board
+//	    for (Map.Entry<ArrayList<Integer>, Integer> entry : board.entrySet()) {
+//	        ArrayList<Integer> position = entry.getKey();
+//	        int value = entry.getValue();
+//	        int x = position.get(0) - 1; // Adjust for zero-based indexing
+//	        int y = position.get(1) - 1; // Adjust for zero-based indexing
+//	        matrix[y][x] = value;
+//	    }
+//
+//	    // Print the matrix
+//	    for (int i = 0; i < 10; i++) {
+//	        for (int j = 0; j < 10; j++) {
+//	            System.out.print(matrix[i][j] + " ");
+//	            // Print coordinates (x, y)
+//	            System.out.print("(" + (i + 1) + "," + (j + 1) + "): ");
+//	        }
+//	        System.out.println();
+//	    }
+//	}
+	 private static void printBoard(HashMap<ArrayList<Integer>, Integer> board) {
+	        for (int i = 1; i <= 10; i++) {
+	            for (int j = 1; j <= 10; j++) {
+	                ArrayList<Integer> coordinates = new ArrayList<>();
+	                coordinates.add(i);
+	                coordinates.add(j);
+	                System.out.print(board.get(coordinates) + " (" + i + "," + j + ") ");
+	            }
+	            System.out.println();
 	        }
-	        System.out.println();
 	    }
-	}
-
 
 }// end of class

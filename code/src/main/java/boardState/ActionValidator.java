@@ -19,15 +19,19 @@ public class ActionValidator {
         // if queen's previous position is valid and contains a queen of the current
         // player
         if (!isValidPosition(queenPrev) || !isCurrentPlayerQueen(queenPrev)) {
+        	System.out.println(1);
         	System.out.println(isValidPosition(queenPrev));
         	System.out.println(isCurrentPlayerQueen(queenPrev));
-        	System.out.println(1);
+        	
         	return false;
         }
 
         // if queen's next position is valid and empty
         if (!isValidPosition(queenNext) || !isEmptyPosition(queenNext)) {
         	System.out.println(2);
+        	System.out.println(isValidPosition(queenNext));
+        	System.out.println(!isEmptyPosition(queenNext));
+        	
             return false;
         }
 
@@ -57,13 +61,13 @@ public class ActionValidator {
         }
         
         if (!isarrowPathClear(queenNext, arrow)) {
+        	System.out.println(7);
             return false;
         }
 
         return true;
     }
-
-    // Check if the position lies in the domain
+ // Check if the position lies in the domain
     private boolean isValidPosition(ArrayList<Integer> position) {
         int x = position.get(0);//x 
         int y = position.get(1);//y 
@@ -72,7 +76,7 @@ public class ActionValidator {
         return x >= 0 && x <= 10 && y >= 0 && y <= 10;
     }
 
-    // check if current positions belongs to a queen
+    // check if current positions belong to a queen
     private boolean isCurrentPlayerQueen(ArrayList<Integer> position) {
         int player = board.get(position);
         System.out.println(board.get(position)+"{ "+ position.get(0)+" "+ position.get(1)+"}");
@@ -129,10 +133,10 @@ public class ActionValidator {
         }
         return deltaX == 0 || deltaY == 0 || deltaX == deltaY;
     }
-    
-    
+
+
     private boolean isarrowPathClear(ArrayList<Integer> newpos, ArrayList<Integer> sa) {
-    	// sa is shoot arrow
+        // sa is shoot arrow
         // check direction of the movement
         int deltaX = Integer.compare(sa.get(0), newpos.get(0));
         int deltaY = Integer.compare(sa.get(1), newpos.get(1));
@@ -149,6 +153,94 @@ public class ActionValidator {
         }
         return true;
     }
+
+
+//    // Check if the position lies in the domain
+//    private boolean isValidPosition(ArrayList<Integer> position) {
+//        int x = position.get(0);//x 
+//        int y = position.get(1);//y 
+//        System.out.println(board.get(position)+"{ "+ position.get(0)+" "+ position.get(1)+"}");
+//        
+//        return x >= 0 && x <= 10 && y >= 0 && y <= 10;
+//    }
+//
+//    // check if current positions belongs to a queen
+//    private boolean isCurrentPlayerQueen(ArrayList<Integer> position) {
+//        int player = board.get(position);
+//        System.out.println(board.get(position)+"{ "+ position.get(0)+" "+ position.get(1)+"}");
+//        return player == 1 || player == 2; // Assuming 1 represents white player's queen, and 2 black's
+//    }
+//
+//    // check if position is empty, positions we move to
+//    private boolean isEmptyPosition(ArrayList<Integer> position) {
+//        return board.get(position) == 0;
+//    }
+//
+//    // Now check if move is horizontal, vertical or diagonal only
+//    private boolean isValidQueenMove(ArrayList<Integer> queenPrev, ArrayList<Integer> queenNext) {
+//        // calculate the difference between the x and y
+//        int deltaX = Math.abs(queenNext.get(0) - queenPrev.get(0));
+//        int deltaY = Math.abs(queenNext.get(1) - queenPrev.get(1));
+//
+//        // Check if the queen is not moving at all
+//        if (deltaX == 0 && deltaY == 0) {
+//            return false;
+//        }
+//        // return true if one of x and y is non-zero, or x=y (diagonal)
+//        return deltaX == 0 || deltaY == 0 || deltaX == deltaY;
+//    }
+//
+//    // The way is clear to reach it
+//    private boolean isPathClear(ArrayList<Integer> queenPrev, ArrayList<Integer> queenNext) {
+//        // check direction of the movement
+//        int deltaX = Integer.compare(queenNext.get(0), queenPrev.get(0));
+//        int deltaY = Integer.compare(queenNext.get(1), queenPrev.get(1));
+//        // next box to move
+//        int x = queenPrev.get(0) + deltaX;
+//        int y = queenPrev.get(1) + deltaY;
+//        // discontinue while loop when x,y = queenNext
+//        while (!((deltaX != 0 && x == queenNext.get(0)) || (deltaY != 0 && y == queenNext.get(1)))) {
+//            if (board.get(new ArrayList<>(Arrays.asList(x, y))) != 0) {
+//                return false;
+//            }
+//            x += deltaX;
+//            y += deltaY;
+//        }
+//      
+//        return true;
+//    }
+//
+//    // arrow direction
+//    private boolean isValidArrowDirection(ArrayList<Integer> queenPrev, ArrayList<Integer> arrow) {
+//        int deltaX = Math.abs(arrow.get(0) - queenPrev.get(0));
+//        int deltaY = Math.abs(arrow.get(1) - queenPrev.get(1));
+//
+//        // Check if the arrow is not moving at all
+//        if (deltaX == 0 && deltaY == 0) {
+//            return false;
+//        }
+//        return deltaX == 0 || deltaY == 0 || deltaX == deltaY;
+//    }
+//    
+//    
+//    private boolean isarrowPathClear(ArrayList<Integer> newpos, ArrayList<Integer> sa) {
+//    	// sa is shoot arrow
+//        // check direction of the movement
+//        int deltaX = Integer.compare(sa.get(0), newpos.get(0));
+//        int deltaY = Integer.compare(sa.get(1), newpos.get(1));
+//        // next box to move
+//        int x = newpos.get(0) + deltaX;
+//        int y = newpos.get(1) + deltaY;
+//        // discontinue while loop when x,y = queenNext
+//        while (!((deltaX != 0 && x == sa.get(0)) || (deltaY != 0 && y == sa.get(1)))) {
+//            if (board.get(new ArrayList<>(Arrays.asList(x, y))) != 0) {
+//                return false;
+//            }
+//            x += deltaX;
+//            y += deltaY;
+//        }
+//        return true;
+//    }
 
 
     // test case
