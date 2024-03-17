@@ -53,7 +53,7 @@ public class Main extends GamePlayer {
 	public static void main(String[] args) {
 		GamePlayer player;
 		// Create HumanPlayer
-		// player = new HumanPlayer();
+		 //player = new HumanPlayer();
 
 		// Create Bot
 		player = new Main(args[0], args[1]);
@@ -104,64 +104,63 @@ public class Main extends GamePlayer {
 	@SuppressWarnings({ "unchecked", "null" })
 	@Override
 	public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
-		if (messageType.equals(GameMessage.GAME_STATE_BOARD)) {
-			System.out.println((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-			gameState = ((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-			boardState = gameState;
-			gamegui.setGameState(gameState);
+	    if (messageType.equals(GameMessage.GAME_STATE_BOARD)) {
+	        System.out.println((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+	        gameState = ((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+	        boardState = gameState;
+	        gamegui.setGameState(gameState);
 
-		}
+	    } else if (messageType.equals(GameMessage.GAME_ACTION_START)) {
+	        // Figure out who is black and white
+	        createBoard();
+	        playerblack = (String) msgDetails.get(AmazonsGameMessage.PLAYER_BLACK);
+	        System.out.println(playerblack + " has the Black pieces");
+	        playerwhite = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
+	        System.out.println(playerwhite + " has the White pieces");
 
-		else if (messageType.equals(GameMessage.GAME_ACTION_START)) {
-			// Figure out who is black and white
-			createBoard();
-			playerblack = (String) msgDetails.get(AmazonsGameMessage.PLAYER_BLACK);
-			System.out.println(playerblack + " has the Black pieces");
-			playerwhite = (String) msgDetails.get(AmazonsGameMessage.PLAYER_WHITE);
-			System.out.println(playerwhite + " has the White pieces");
+	        if (getGameClient().getUserName().equals(msgDetails.get(AmazonsGameMessage.PLAYER_BLACK))) {
+	            playercolor = "black";
+	            makeMinimaxMove(2); // Black always makes the first move
+	        } else {
+	            playercolor = "white";
+	            System.out.println("Waiting for opponent's move.");
+	        }
 
-			if (getGameClient().getUserName().equals(msgDetails.get(AmazonsGameMessage.PLAYER_BLACK))) {
-				playercolor = "black";
-				makeRandomMove(2);
-			} else {
-				playercolor = "white";
-				System.out.println("Waiting for opponent's move.");
-			}
+	    } else if (messageType.equals(GameMessage.GAME_ACTION_MOVE)) {
 
-		} else if (messageType.equals(GameMessage.GAME_ACTION_MOVE)) {
+	        gamegui.updateGameState(msgDetails);
 
-			gamegui.updateGameState(msgDetails);
+	        ArrayList<Integer> currentPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
+	        ArrayList<Integer> NextPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_NEXT);
+	        ArrayList<Integer> ArrowPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
 
-			ArrayList<Integer> currentPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-			ArrayList<Integer> NextPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_NEXT);
-			ArrayList<Integer> ArrowPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
+	        ArrayList<Integer> c = new ArrayList<Integer>();
+	        c.addAll(currentPos);
+	        ArrayList<Integer> n = new ArrayList<Integer>();
+	        n.addAll(NextPos);
+	        ArrayList<Integer> a = new ArrayList<Integer>();
+	        a.addAll(ArrowPos);
 
-			ArrayList<Integer> c = new ArrayList<Integer>();
-			c.addAll(currentPos);
-			ArrayList<Integer> n = new ArrayList<Integer>();
-			n.addAll(NextPos);
-			ArrayList<Integer> a = new ArrayList<Integer>();
-			a.addAll(ArrowPos);
+	        String Move = (xaxis[currentPos.get(1)] + (currentPos.get(0)) + "->" + xaxis[NextPos.get(1)]
+	                + (NextPos.get(0)) + "(Arrow: " + xaxis[ArrowPos.get(1)] + (ArrowPos.get(0)) + ")");
+	        if (playercolor.equals("white")) {
+	            System.out.println("Move by " + playerblack + " : " + Move);
+	            updateBoard(c, n, a);
+	            ActionValidator validator = new ActionValidator(board);
+	            System.out.println(validator.isValidMove(c, n, a));
+	            makeRandomMove(1);
+	        } else {
+	            System.out.println("Move by " + playerwhite + " : " + Move);
+	            updateBoard(c, n, a);
+	            ActionValidator validator = new ActionValidator(board);
+	            System.out.println(validator.isValidMove(c, n, a));
+	            makeRandomMove(2);
+	        }
 
-			String Move = (xaxis[currentPos.get(1)] + (currentPos.get(0)) + "->" + xaxis[NextPos.get(1)]
-					+ (NextPos.get(0)) + "(Arrow: " + xaxis[ArrowPos.get(1)] + (ArrowPos.get(0)) + ")");
-			if (playercolor.equals("white")) {
-				System.out.println("Move by " + playerblack + " : " + Move);
-				updateBoard(c, n, a);
-				ActionValidator validator = new ActionValidator(board);
-				System.out.println(validator.isValidMove(c, n, a));
-				makeRandomMove(1);
-			} else {
-				System.out.println("Move by " + playerwhite + " : " + Move);
-				updateBoard(c, n, a);
-				ActionValidator validator = new ActionValidator(board);
-				System.out.println(validator.isValidMove(c, n, a));
-				makeRandomMove(2);
-			}
-
-		}
-		return true;
+	    }
+	    return true;
 	}
+
 
 	@Override
 	public String userName() {
@@ -423,34 +422,85 @@ public class Main extends GamePlayer {
 		System.out.println(possibleMoves);
 		return possibleMoves;
 	}
-	
 	private void makeMinimaxMove(int playerNumber) {
-	    // Convert the current board state into a Node
-	    State currentState = new State(board, playerNumber);
-	    Node rootNode = new Node(currentState);
+	    State currentState = new State(board, playerNumber, null); // Pass null for lastMove initially
+	    Node rootNode = new Node(currentState, null);
 
-	    buildGameTree(rootNode, 3); // Assuming a depth of 3
+	    // Assuming the depth is 3 for a balance between performance and difficulty
+	    int depth = 3;
+	    boolean isMaximizingPlayer = (playerNumber == 1);
 
-	    // Use the minimax algorithm to find the best move
-	    boolean isMaximizingPlayer = (playerNumber == 1); // Assuming player 1 is maximizing
-	    double bestScore = GameAI.minimax(rootNode, 3, isMaximizingPlayer);
-	    
-	    // Find the child node with the best score
-	    Node bestMoveNode = findBestMoveNode(rootNode, bestScore, isMaximizingPlayer);
+	    // Generate all possible moves (this part may need adjustment based on your State class implementation)
+	    buildGameTree(rootNode, depth, isMaximizingPlayer);
 
-	    // Convert the bestMoveNode back into an action
-	    Action bestMove = convertNodeToAction(bestMoveNode);
+	    double bestScore;
+	    Action bestAction = null;
+	    if (isMaximizingPlayer) {
+	        bestScore = Double.NEGATIVE_INFINITY;
+	        for (Node child : rootNode.getChildArray()) {
+	            double score = GameAI.minimaxWithAlphaBeta(child, depth - 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+	            System.out.println("Maximizing player - Child score: " + score); // Debug print
+	            if (score > bestScore) {
+	                bestScore = score;
+	                bestAction = child.getLastMove(); 
+	            }
+	        }
+	    } else {
+	        bestScore = Double.POSITIVE_INFINITY;
+	        for (Node child : rootNode.getChildArray()) {
+	            double score = GameAI.minimaxWithAlphaBeta(child, depth - 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
+	            System.out.println("Minimizing player - Child score: " + score); // Debug print
+	            if (score < bestScore) {
+	                bestScore = score;
+	                bestAction = child.getLastMove();
+	            }
+	        }
+	    }
 
-	    // Send the move to the game server
-	    System.out.println("Best move by " + getGameClient().getUserName() + " : " + bestMove.toString());
-	    getGameClient().sendMoveMessage(bestMove.makeMap());
-	    getGameGUI().updateGameState(bestMove.makeMap());
-
-	    // Update the board based on the move
-	    ArrayList<Integer> c3 = new ArrayList<>(); // You need to fill these based on the bestMove details
-	    ArrayList<Integer> n3 = new ArrayList<>();
-	    ArrayList<Integer> a3 = new ArrayList<>();
-	    updateBoard(c3, n3, a3);
+	    if (bestAction != null) {
+	        System.out.println("AI decides to move: " + bestAction);
+	        // Here, implement the function to update your board and make the move
+	        updateBoardWithAction(bestAction);
+	        // Communicate the move to the game server
+	        getGameClient().sendMoveMessage(bestAction.makeMap());
+	    } else {
+	        System.out.println("No valid move found by AI.");
+	    }
 	}
+
+
+	
+
+	private void buildGameTree(Node node, int depth, boolean isMaximizingPlayer) {
+	    if (depth == 0) return;
+
+	    List<State> possibleStates = node.getState().getAllPossibleStates();
+	    for (State possibleState : possibleStates) {
+	        Node childNode = new Node(possibleState, null);
+	        node.addChild(childNode);
+	        buildGameTree(childNode, depth - 1, !isMaximizingPlayer);
+	    }
+	}
+	
+
+	private void updateBoardWithAction(Action action) {
+	    // Assuming your board hashmap uses ArrayList<Integer> for keys where the first integer is the row (x) and the second integer is the column (y)
+	    ArrayList<Integer> queenCurrent = new ArrayList<>(Arrays.asList(action.getPrevX() + 1, action.getPrevY() + 1));
+	    ArrayList<Integer> queenNew = new ArrayList<>(Arrays.asList(action.getNewX() + 1, action.getNewY() + 1));
+	    ArrayList<Integer> arrow = new ArrayList<>(Arrays.asList(action.getArrowX() + 1, action.getArrowY() + 1));
+
+	    // Clear the queen's current position
+	    board.put(queenCurrent, 0); // Assuming 0 represents an empty cell
+
+	    // Move the queen to the new position
+	    int queenVal = (playercolor.equals("white")) ? 1 : 2; // Determine if your player is white (1) or black (2)
+	    board.put(queenNew, queenVal);
+
+	    // Place the arrow
+	    board.put(arrow, 3); // Assuming 3 represents an arrow
+
+	    System.out.println("AI moved from " + queenCurrent + " to " + queenNew + " and shot an arrow to " + arrow);
+	}
+
 
 }// end of class
