@@ -2,7 +2,6 @@ package ubc.boardState;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Node {
     private Node parent;
@@ -10,27 +9,33 @@ public class Node {
     private double winScore;
     private int visitCount;
     private State state;
+    private Action lastMove;
 
+    // Constructor for root node
     public Node() {
         this.childArray = new ArrayList<>();
+        this.winScore = 0.0;
+        this.visitCount = 0;
     }
 
-    public Node(State state) {
+    // Constructor for node with an initial state and action
+    public Node(State state, Action lastMove) {
+        this();
         this.state = state;
-        this.childArray = new ArrayList<>();
+        this.lastMove = lastMove;
     }
 
+    // Copy constructor
     public Node(Node node) {
-        this.childArray = new ArrayList<>();
-        this.state = new State(node.getState());
-        this.parent = node.getParent();
-        this.winScore = node.getWinScore(); //or heuristic score
-        this.visitCount = node.getVisitCount();
-        for (Node child : node.getChildArray()) {
-            this.childArray.add(new Node(child));
-        }
+        this.childArray = new ArrayList<>(node.getChildArray()); // Performs a shallow copy; deep copy if necessary
+        this.state = node.state.clone(); // Assumes a clone method in State class
+        this.parent = node.parent; // Shallow copy is typically sufficient
+        this.winScore = node.winScore;
+        this.visitCount = node.visitCount;
+        this.lastMove = node.lastMove; // Assuming Action is immutable or that shallow copy is sufficient
     }
 
+    // Standard getters and setters
     public Node getParent() {
         return parent;
     }
@@ -43,16 +48,13 @@ public class Node {
         return childArray;
     }
 
-    public void setChildArray(List<Node> childArray) {
-        this.childArray = childArray;
+    public void addChild(Node child) {
+        child.setParent(this);
+        this.childArray.add(child);
     }
 
     public double getWinScore() {
-        return state.calculateHeuristicScore();//to store winScore
-    }
-    
-    public void updateWinScore() {
-        this.winScore = this.state.calculateHeuristicScore(); //to update winScore
+        return winScore;
     }
 
     public void setWinScore(double winScore) {
@@ -63,8 +65,8 @@ public class Node {
         return visitCount;
     }
 
-    public void setVisitCount(int visitCount) {
-        this.visitCount = visitCount;
+    public void incrementVisit() {
+        this.visitCount++;
     }
 
     public State getState() {
@@ -75,37 +77,41 @@ public class Node {
         this.state = state;
     }
 
-    public void incrementVisit() {
-        this.visitCount++;
+    public Action getLastMove() {
+        return lastMove;
     }
 
-    public void addScore(double score) {
-        if (this.winScore != Integer.MIN_VALUE) {
-            this.winScore += score;
-        }
+    public void setLastMove(Action lastMove) {
+        this.lastMove = lastMove;
     }
 
     public boolean isLeaf() {
-        return this.childArray.isEmpty();
+        return childArray.isEmpty();
     }
 
-    public Node getRandomChildNode() {
-        Random random = new Random();
-        return this.childArray.get(random.nextInt(this.childArray.size()));
+    // Increment the visit count and add to the win score
+    public void addScore(double score) {
+        this.winScore += score;
+        incrementVisit();
     }
 
+    // Find the child with the highest win score per visit
     public Node getChildWithMaxScore() {
-        return this.childArray.stream()
-                .max((a, b) -> {
-                    double scoreA = a.getWinScore() / a.getVisitCount();
-                    double scoreB = b.getWinScore() / b.getVisitCount();
-                    return Double.compare(scoreA, scoreB);
-                })
+        return childArray.stream()
+                .max((node1, node2) -> Double.compare(node1.getWinScore() / node1.getVisitCount(),
+                                                      node2.getWinScore() / node2.getVisitCount()))
                 .orElse(null);
     }
 
-    public void addChild(Node child) {
-        child.setParent(this);
-        this.childArray.add(child);
+    // This method could be useful for debugging or Minimax algorithm implementations
+    public void printTree(int depth) {
+        StringBuilder indent = new StringBuilder();
+        for (int i = 0; i < depth; i++) {
+            indent.append(" ");
+        }
+        System.out.println(indent.toString() + "Node: Score=" + winScore + ", Visits=" + visitCount);
+        for (Node child : childArray) {
+            child.printTree(depth + 1);
+        }
     }
 }
