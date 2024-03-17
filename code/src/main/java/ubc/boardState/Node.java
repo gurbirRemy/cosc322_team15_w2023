@@ -24,7 +24,7 @@ public class Node {
         this.childArray = new ArrayList<>();
         this.state = new State(node.getState());
         this.parent = node.getParent();
-        this.winScore = node.getWinScore();
+        this.winScore = node.getWinScore(); //or heuristic score
         this.visitCount = node.getVisitCount();
         for (Node child : node.getChildArray()) {
             this.childArray.add(new Node(child));
@@ -48,7 +48,11 @@ public class Node {
     }
 
     public double getWinScore() {
-        return winScore;
+        return state.calculateHeuristicScore();//to store winScore
+    }
+    
+    public void updateWinScore() {
+        this.winScore = this.state.calculateHeuristicScore(); //to update winScore
     }
 
     public void setWinScore(double winScore) {

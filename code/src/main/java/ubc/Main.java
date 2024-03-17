@@ -1,3 +1,4 @@
+package ubc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +11,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import boardState.Action;
-import boardState.ActionValidator;
+import ubc.boardState.Action;
+import ubc.boardState.ActionValidator;
+import ubc.boardState.GameAI;
+import ubc.boardState.Node;
+import ubc.boardState.State;
 import sfs2x.client.entities.Room;
 import ygraph.ai.smartfox.games.amazons.*;
 import ygraph.ai.smartfox.games.BaseGameGUI;
@@ -418,6 +422,35 @@ public class Main extends GamePlayer {
 		}
 		System.out.println(possibleMoves);
 		return possibleMoves;
+	}
+	
+	private void makeMinimaxMove(int playerNumber) {
+	    // Convert the current board state into a Node
+	    State currentState = new State(board, playerNumber);
+	    Node rootNode = new Node(currentState);
+
+	    buildGameTree(rootNode, 3); // Assuming a depth of 3
+
+	    // Use the minimax algorithm to find the best move
+	    boolean isMaximizingPlayer = (playerNumber == 1); // Assuming player 1 is maximizing
+	    double bestScore = GameAI.minimax(rootNode, 3, isMaximizingPlayer);
+	    
+	    // Find the child node with the best score
+	    Node bestMoveNode = findBestMoveNode(rootNode, bestScore, isMaximizingPlayer);
+
+	    // Convert the bestMoveNode back into an action
+	    Action bestMove = convertNodeToAction(bestMoveNode);
+
+	    // Send the move to the game server
+	    System.out.println("Best move by " + getGameClient().getUserName() + " : " + bestMove.toString());
+	    getGameClient().sendMoveMessage(bestMove.makeMap());
+	    getGameGUI().updateGameState(bestMove.makeMap());
+
+	    // Update the board based on the move
+	    ArrayList<Integer> c3 = new ArrayList<>(); // You need to fill these based on the bestMove details
+	    ArrayList<Integer> n3 = new ArrayList<>();
+	    ArrayList<Integer> a3 = new ArrayList<>();
+	    updateBoard(c3, n3, a3);
 	}
 
 }// end of class

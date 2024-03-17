@@ -1,4 +1,4 @@
-package boardState;
+package ubc.boardState;
 
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 

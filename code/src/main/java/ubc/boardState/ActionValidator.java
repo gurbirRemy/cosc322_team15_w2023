@@ -1,4 +1,4 @@
-package boardState;
+package ubc.boardState;
 
 
 import java.util.ArrayList;
