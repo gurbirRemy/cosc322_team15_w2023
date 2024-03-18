@@ -1,4 +1,4 @@
-package boardState;
+package ubc.boardState;
 
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
@@ -25,6 +25,14 @@ public class Action {
         arrowX = arrowPos.get(0) - 1;
         arrowY = arrowPos.get(1) - 1;
     }
+    public Action(Action action) {
+        this.prevX = action.prevX;
+        this.prevY = action.prevY;
+        this.newX = action.newX;
+        this.newY = action.newY;
+        this.arrowX = action.arrowX;
+        this.arrowY = action.arrowY;
+    }
 
     public Action(int prevX, int prevY, int newX, int newY, int arrowX, int arrowY) {
         this.prevX = prevX;
@@ -36,7 +44,17 @@ public class Action {
     }
     
 
-    public String toString() {
+    public Action(ArrayList<Integer> prevPos, ArrayList<Integer> newPos, ArrayList<Integer> arrowPos) {
+        this.prevX = prevPos.get(0) - 1;
+        this.prevY = prevPos.get(1) - 1;
+        this.newX = newPos.get(0) - 1;
+        this.newY = newPos.get(1) - 1;
+        this.arrowX = arrowPos.get(0) - 1;
+        this.arrowY = arrowPos.get(1) - 1;
+    }
+
+
+	public String toString() {
         String[] xaxis = {"0", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
         return xaxis[prevX] + (prevY) + "->" + xaxis[newX] + (newY) + "(Arrow: " + xaxis[arrowX] + (arrowY) + ")";
     }
