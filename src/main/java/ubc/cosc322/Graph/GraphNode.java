@@ -7,121 +7,102 @@ import java.util.List;
 import ubc.cosc322.AmazonsGameManager;
 import ubc.cosc322.AmazonsGameManager.Square;
 
+/*need to change setters and getters
+ * KingDistanceWhite -> kDistWhite
+ * KingDistanceBlack -> kDistBlack
+ * QueenDistanceWhite -> qDistWhite
+ * QueenDistanceBlack -> qDistBlack
+ */
 
 public class GraphNode {
 
     private int id;
-    private  List<GraphEdge> edgeList;
-    private int kingDistanceWhite;
-    private int kingDistanceBlack;
-    private int queenDistanceWhite;
-    private int queenDistanceBlack;
+    private  List<GraphEdge> edges;
+    private int kDistWhite;
+    private int kDistBlack;
+    private int qDistWhite;
+    private int qDistBlack;
     private ubc.cosc322.AmazonsGameManager.Square squareValue;
-
-
-    /**
-    Initializes a new instance of the GraphNode class with the specified id and value.
-    @param id the unique identifier of the graph node
-    @param value the value of the graph node
-    */
-    public GraphNode(int id, Square value){
+    
+ // Constructor: Initializes a new instance of GraphNode with id and square value, setting up its edges list and initializing distances.
+    public GraphNode(int id, Square squareValue){
         this.id = id;
-        edgeList = new ArrayList<>();
-        setNodeValue(value);
+        
+        edges = new ArrayList<>();
+        
+        setNodeValue(squareValue);
         initializeAllDistances();
     }
+   
+    // Clones the given sourceNode, copying its id, square value, and distance attributes.
+   public static GraphNode cloneNode(GraphNode sourceNode){
+       GraphNode clone = new GraphNode(sourceNode.id, sourceNode.squareValue);
+       clone.setKingDistanceWhite(sourceNode.getKingDistanceWhite());
+       clone.setKingDistanceBlack(sourceNode.getKingDistanceBlack());
+       clone.setQueenDistanceWhite(sourceNode.getQueenDistanceWhite());
+       clone.setQueenDistanceBlack(sourceNode.getQueenDistanceBlack());
+       return clone;
+   }
+   
+   // Sets the node value and resets distance attributes if the squareValue is an arrow.
+   public void setNodeValue(AmazonsGameManager.Square squareValue) {
+       if(squareValue.isArrow()) {
+           setQueenDistanceBlack(0);
+           setKingDistanceBlack(0);  
+           setQueenDistanceWhite(0);
+           setKingDistanceWhite(0);
+       }
+       this.squareValue = squareValue;
+   }
+   
+   
+   public GraphEdge getAvailableOrStartEdge(GraphNode initialNode, GraphEdge.Direction queryDirection){
+       for(GraphEdge edge : edges){
+           if(edge.getEdgeDirection() != queryDirection) {
+               continue;
+           }
+           if ((edge.getEdgeExists() || edge.getTargetNode().equals(initialNode))) {
+               return edge;
+           }
+       }
+       return null;
+   }
+   
+// Returns an edge that is available or leads back to the initialNode in the specified direction, or null if not found.
+   public GraphEdge getExistingEdge(GraphEdge.Direction queryDirection){
+       for(GraphEdge edge : edges){
 
-    //This function initializes all distances of a GraphNode to infinity (maximum value of int). 
-    //It sets the queen and king distances to infinity for both black and white players.
+           if(!edge.getEdgeExists()){
+               continue;
+           }
+           if (edge.getEdgeDirection() == queryDirection) {
+               return edge;
+           }
+       }
+       return null;
+   }
+   
+   // Returns an existing edge in the specified direction, or null if not found.
+   public void setPlayerDistancesZero(AmazonsGameManager.Square player){
+   	//If the player is black, the king and queen distances of the black player are set to zero.
+       if(player.isBlack()){
+           setQueenDistanceBlack(0);
+           setKingDistanceBlack(0);  
+       }
+     //If the player is white, the king and queen distances of the white player are set to zero.
+       else {        
+           setQueenDistanceWhite(0);
+           setKingDistanceWhite(0);
+       }
+   }
+
+
      public void initializeAllDistances(){
         setQueenDistanceWhite(Integer.MAX_VALUE);
         setQueenDistanceBlack(Integer.MAX_VALUE);
+        
         setKingDistanceWhite(Integer.MAX_VALUE);
         setKingDistanceBlack(Integer.MAX_VALUE);
-    }
-
-
-     /**
-     Creates a deep copy of the provided GraphNode object.
-     @param original the GraphNode object to be copied
-     @return a new GraphNode object with the same attributes as the original object
-     */
-    public static GraphNode cloneNode(GraphNode original){
-        GraphNode clone = new GraphNode(original.id, original.squareValue);
-        clone.setKingDistanceWhite(original.getKingDistanceWhite());
-        clone.setKingDistanceBlack(original.getKingDistanceBlack());
-        clone.setQueenDistanceWhite(original.getQueenDistanceWhite());
-        clone.setQueenDistanceBlack(original.getQueenDistanceBlack());
-        return clone;
-    }
-
-    /**
-    Sets the king and queen distances of a player to zero.
-    @param player the player whose distances are being set to zero
-    */
-    public void setPlayerDistancesZero(AmazonsGameManager.Square player){
-    	//If the player is black, the king and queen distances of the black player are set to zero.
-        if(player.isBlack()){
-            setQueenDistanceBlack(0);
-            setKingDistanceBlack(0);  
-        }
-      //If the player is white, the king and queen distances of the white player are set to zero.
-        else {        
-            setQueenDistanceWhite(0);
-            setKingDistanceWhite(0);
-        }
-    }
-
-    /**
-    Returns an existing edge with the given direction from the edge list, or null if it does not exist.
-    @param direction the direction of the desired edge
-    @return the existing edge with the given direction, or null if it does not exist
-    */
-    public GraphEdge getExistingEdge(GraphEdge.Direction direction){
-        for(GraphEdge edge : edgeList){
-
-            if(!edge.getEdgeExists()){
-                continue;
-            }
-            if (edge.getEdgeDirection() == direction) {
-                return edge;
-            }
-        }
-        return null;
-    }
-
-    /**
-    Sets the node value to the given square value. 
-    @param value the square value to set
-    */
-    public void setNodeValue(AmazonsGameManager.Square value) {
-    	//If the square value is an arrow,
-        //then sets the king and queen distances for both black and white players to 0.
-        if(value.isArrow()) {
-            setQueenDistanceBlack(0);
-            setKingDistanceBlack(0);  
-            setQueenDistanceWhite(0);
-            setKingDistanceWhite(0);
-        }
-        this.squareValue = value;
-    }
-
-    /**
-    Returns the available edge in the given direction or the edge that leads back to the starting node if it exists.
-    @param start the starting node
-    @param direction the direction of the desired edge
-    @return the available edge in the given direction or the edge that leads back to the starting node if it exists, or null if no such edge exists
-    */
-    public GraphEdge getAvailableOrStartEdge(GraphNode start, GraphEdge.Direction direction){
-        for(GraphEdge edge : edgeList){
-            if(edge.getEdgeDirection() != direction) {
-                continue;
-            }
-            if ((edge.getEdgeExists() || edge.getTargetNode().equals(start))) {
-                return edge;
-            }
-        }
-        return null;
     }
 
     public int getNodeId(){ 
@@ -133,48 +114,43 @@ public class GraphNode {
     }
 
     public List<GraphEdge> getAllEdges(){
-        return edgeList;
+        return edges;
     }
 
 
     public int getQueenDistanceWhite() {
-        return queenDistanceWhite;
+        return qDistWhite;
     }
 
-    public void setQueenDistanceWhite(int queenDistanceWhite) {
-        this.queenDistanceWhite = queenDistanceWhite;
+    public void setQueenDistanceWhite(int qDistWhite) {
+        this.qDistWhite = qDistWhite;
     }
 
     public int getQueenDistanceBlack() {
-        return queenDistanceBlack;
+        return qDistBlack;
     }
 
-    public void setQueenDistanceBlack(int queenDistanceBlack) {
-        this.queenDistanceBlack = queenDistanceBlack;
+    public void setQueenDistanceBlack(int qDistBlack) {
+        this.qDistBlack = qDistBlack;
     }
 
     public int getKingDistanceWhite() {
-        return kingDistanceWhite;
+        return kDistWhite;
     }
 
-    public void setKingDistanceWhite(int kingDistanceWhite) {
-        this.kingDistanceWhite = kingDistanceWhite;
+    public void setKingDistanceWhite(int kDistWhite) {
+        this.kDistWhite = kDistWhite;
     }
 
     public int getKingDistanceBlack() {
-        return kingDistanceBlack;
+        return kDistBlack;
     }
 
-    public void setKingDistanceBlack(int kingDistanceBlack) {
-        this.kingDistanceBlack = kingDistanceBlack;
+    public void setKingDistanceBlack(int kDistBlack) {
+        this.kDistBlack = kDistBlack;
     }
 
    
-    /**
-    Checks if this GraphNode is equal to another object.
-    @param o the object to compare
-    @return true if the object is equal to this GraphNode, false otherwise
-    */
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
